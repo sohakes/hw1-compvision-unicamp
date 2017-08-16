@@ -54,7 +54,7 @@ def convolution_opencv(inputimg, mask):
 
     return out
 
-img = cv2.imread('input/p1-1-0.png', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
 conv = convolution(img, np.array([[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]))
 debug('conv',conv)
 cv2.imwrite('output/p1-2-1-0.png', conv)
@@ -80,43 +80,113 @@ gaussian_img = convolution(img, gaussian_mask)
 debug('gaussian_img',gaussian_img)
 cv2.imwrite('output/p1-2-2-0.png', gaussian_img)
 
-class Pyramid:
-    def __up(self, img): #downsample
-        img = convolution(img, self.__gaussian_mask)
+
+#IMPORTANT:
+#there is an assumption that the image has width and height defined as 2^n + 1
+#The assumption was made in the paper and I've maintained it
+class GaussianPyramid:
+    def up(self, level): #downsample
+        img = convolution(self.__img_arr[level], self.__gaussian_mask)
         return img[::2, ::2]
 
         #private
-    def __down(self, img): #upsample
+    def down(self, level): #upsample
         #first x direction
+        img = self.__img_arr[level]
         upimg = img.astype(int)
         #double the last column
-        upimg = np.insert(upimg, img.shape[1] - 1, upimg[:, -1], axis=1)
-        for i in range(img.shape[1], 0, -1):
+        #upimg = np.insert(upimg, img.shape[1] - 1, upimg[:, -1], axis=1)
+        for i in range(img.shape[1] - 1, 0, -1):
             result_column = (upimg[:, i] + upimg[:, i - 1]) / 2
             upimg = np.insert(upimg, i, result_column, axis=1)
 
         #double the last row
-        upimg = np.insert(upimg, img.shape[0] - 1, upimg[-1, :], axis=0)
-        for i in range(img.shape[0], 0, -1):
+        #upimg = np.insert(upimg, img.shape[0] - 1, upimg[-1, :], axis=0)
+        for i in range(img.shape[0] - 1, 0, -1):
             result_row = (upimg[i, :] + upimg[i - 1, :]) / 2
             upimg = np.insert(upimg, i, result_row, axis=0)
-        print(upimg)
         return upimg.astype(np.uint8)
 
     #public
     def access(self, level):
-        return self._img_arr[level]
+        return self.__img_arr[level]
 
     def __init__(self, image, levels):
         self.__gaussian_mask = create_gaussian_mask(5, 3)
         self.image = image
         self.levels = levels
         self.__img_arr = [image]
-        debug("down", self.__down(image))
+        debug("down", self.down(0))
         for i in range(levels - 1):
-          self.__img_arr.append(self.__up(self.__img_arr[i]))
+          self.__img_arr.append(self.up(i))
           debug("up", self.__img_arr[-1])
 
+class LaplacianPyramid:
+    def up(self, level): #downsample
+        #by definition, from the paper
+        if level == self.levels - 1:
+            return self.__gaussian_pyramid.access(level)
+        gauss_img = self.__gaussian_pyramid.down(level + 1).astype(int)
+        lapl_img = self.__gaussian_pyramid.access(level).astype(int) - gauss_img
+        minl = np.min(lapl_img)
+        if minl < 0:
+            lapl_img = lapl_img - minl
+        return lapl_img.astype('uint8')
+
+    def down(self, img): #upsample
+        #first x direction
+        upimg = img.astype(int)
+        #double the last column
+        #upimg = np.insert(upimg, img.shape[1] - 1, upimg[:, -1], axis=1)
+        for i in range(img.shape[1] - 1, 0, -1):
+            result_column = (upimg[:, i] + upimg[:, i - 1]) / 2
+            upimg = np.insert(upimg, i, result_column, axis=1)
+
+        #double the last row
+        #upimg = np.insert(upimg, img.shape[0] - 1, upimg[-1, :], axis=0)
+        for i in range(img.shape[0] - 1, 0, -1):
+            result_row = (upimg[i, :] + upimg[i - 1, :]) / 2
+            upimg = np.insert(upimg, i, result_row, axis=0)
+        return upimg.astype(np.uint8)
+
+
+    def recover_original(self): #upsample
+        img = self.__img_arr[self.levels - 1]
+        for i in range(self.levels - 2, -1, -1):
+            img = self.down(img).astype(float) + self.__img_arr[i].astype(float)
+
+        img = img / (self.levels)
+        return img.astype(np.uint8)
+
+    #summation property
+    def recover_originalbkp(self): #upsample
+        sumimg = []
+        for i in range(self.levels):
+            img = self.__img_arr[i]
+            for j in range(i):
+                img = self.down(img)
+            if sumimg == []:
+                sumimg = img.astype(float)
+            else:
+                sumimg = sumimg + img.astype(float)
+        return (sumimg / self.levels).astype(np.uint8)
+
+    #public
+    def access(self, level):
+        return self._img_arr[level]
+
+    def __init__(self, image, levels):
+        self.image = image
+        self.levels = levels
+        self.__gaussian_pyramid = GaussianPyramid(image, levels)
+        self.__img_arr = []
+        #debug("down", self.down(0))
+        for i in range(levels):
+          self.__img_arr.append(self.up(i))
+          debug("up", self.__img_arr[-1])
+
+        img = self.recover_original()
+        debug("original!", img)
 
 
 
@@ -125,4 +195,5 @@ class Pyramid:
 #debug('gaussian_img',downsampled_img)
 #cv2.imwrite('output/p1-2-2-1.png', downsampled_img)
 
-pyramid = Pyramid(img, 3)
+#gaussian_pyramid = GaussianPyramid(img, 5)
+laplacian_pyramid = LaplacianPyramid(img, 3)
