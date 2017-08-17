@@ -116,10 +116,10 @@ class GaussianPyramid:
         self.image = image
         self.levels = levels
         self.__img_arr = [image]
-        debug("down", self.down(0))
+        #debug("down", self.down(0))
         for i in range(levels - 1):
           self.__img_arr.append(self.up(i))
-          debug("up", self.__img_arr[-1])
+          #debug("up", self.__img_arr[-1])
 
 class LaplacianPyramid:
     def up(self, level): #downsample
@@ -128,10 +128,10 @@ class LaplacianPyramid:
             return self.__gaussian_pyramid.access(level)
         gauss_img = self.__gaussian_pyramid.down(level + 1).astype(int)
         lapl_img = self.__gaussian_pyramid.access(level).astype(int) - gauss_img
-        minl = np.min(lapl_img)
-        if minl < 0:
-            lapl_img = lapl_img - minl
-        return lapl_img.astype('uint8')
+        #minl = np.min(lapl_img)
+        #if minl < 0:
+        #    lapl_img = lapl_img - minl
+        return lapl_img
 
     def down(self, img): #upsample
         #first x direction
@@ -147,15 +147,15 @@ class LaplacianPyramid:
         for i in range(img.shape[0] - 1, 0, -1):
             result_row = (upimg[i, :] + upimg[i - 1, :]) / 2
             upimg = np.insert(upimg, i, result_row, axis=0)
-        return upimg.astype(np.uint8)
+        return upimg
 
 
     def recover_original(self): #upsample
         img = self.__img_arr[self.levels - 1]
         for i in range(self.levels - 2, -1, -1):
-            img = self.down(img).astype(float) + self.__img_arr[i].astype(float)
+            img = self.down(img) + self.__img_arr[i]
 
-        img = img / (self.levels)
+        #img = img / (self.levels - 1)
         return img.astype(np.uint8)
 
     #summation property
@@ -173,22 +173,50 @@ class LaplacianPyramid:
 
     #public
     def access(self, level):
-        return self._img_arr[level]
+        return self.__img_arr[level]
 
     def __init__(self, image, levels):
-        self.image = image
+        self.image = image.astype(int)
         self.levels = levels
         self.__gaussian_pyramid = GaussianPyramid(image, levels)
         self.__img_arr = []
         #debug("down", self.down(0))
         for i in range(levels):
           self.__img_arr.append(self.up(i))
-          debug("up", self.__img_arr[-1])
+          #debug("up", self.__img_arr[-1])
 
         img = self.recover_original()
-        debug("original!", img)
+        debug("original!", img.astype(np.uint8))
+
+class BlendPyramid(LaplacianPyramid):
+    def __mix(self, img1, img2):
+        assert img1.shape == img2.shape
+        img1 = img1.astype(int)
+        img2 = img2.astype(int)
+        middle = math.floor(img1.shape[1]/2)
+        img1half = img1[:, :middle]
+        middlecolumn = (img1[:, middle] + img2[:, middle]) / 2
+        img2half = img2[:, middle + 1:]
+        #print("shapes:", img1half.shape, img2half.shape, middlecolumn.shape)
+        halfs = np.concatenate((img1half, img2half), axis=1).astype(int)
+        return np.insert(halfs, middle, middlecolumn, axis=1)
 
 
+    def __init__(self, img1, img2, levels):
+        self.image = self.__mix(img1, img2).astype(int)
+        #debug("blendit!", self.image.astype(np.uint8))
+        self.levels = levels
+        self.__img1_laplacian = LaplacianPyramid(img1, levels)
+        self.__img2_laplacian = LaplacianPyramid(img2, levels)
+        self._LaplacianPyramid__img_arr = []
+        #debug("down", self.down(0))
+        for i in range(levels):
+          self._LaplacianPyramid__img_arr.append(self.__mix(self.__img1_laplacian.access(i), self.__img2_laplacian.access(i)))
+          #debug("blend", self._LaplacianPyramid__img_arr[-1])
+
+        img = self.recover_original()
+        img = img + np.min(img)
+        debug("original!", img.astype(np.uint8))
 
 
 #downsampled_img = downsample(gaussian_img)
@@ -196,4 +224,11 @@ class LaplacianPyramid:
 #cv2.imwrite('output/p1-2-2-1.png', downsampled_img)
 
 #gaussian_pyramid = GaussianPyramid(img, 5)
-laplacian_pyramid = LaplacianPyramid(img, 3)
+img = cv2.imread('input/p1-1-4.png', cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread('input/p1-1-3.png', cv2.IMREAD_GRAYSCALE)
+img = np.pad(img, ((0, 1), (0, 1)), 'edge')
+img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
+laplacian_pyramid = BlendPyramid(img, img2, 6)
+
+#Agora precisa fazer a parte com mask!
+#não pular!
