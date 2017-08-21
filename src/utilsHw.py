@@ -13,6 +13,19 @@ def debug(name,img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def create_gaussian_mask(size, sigma):
+    assert size % 2 == 1, "mask should have odd size"
+    def pixel_val(x, y):
+        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
+        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
+
+    halfsize = math.floor(size / 2)
+
+    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)])
+    msum = np.sum(mask)
+
+    return mask / msum
+
 #got it from https://stackoverflow.com/questions/5478351/python-time-measure-function
 def timing(f):
     def wrap(*args):
@@ -43,15 +56,3 @@ def convolution_opencv(inputimg, mask):
 
     return out
 
-def create_gaussian_mask(size, sigma):
-    assert size % 2 == 1, "mask should have odd size"
-    def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
-        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
-
-    halfsize = math.floor(size / 2)
-
-    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)])
-    msum = np.sum(mask)
-
-    return mask / msum
