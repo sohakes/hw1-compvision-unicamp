@@ -56,3 +56,26 @@ def convolution_opencv(inputimg, mask):
 
     return out
 
+def fourrier_transform(img):
+    # Fourier
+    #f = cv2.dft(np.float32(img),flags = cv2.DFT_COMPLEX_OUTPUT)
+    f = np.fft.fft2(img)
+    # Fourier Shift - Put center zero.
+    fs = np.fft.fftshift(f)
+
+    return fs
+
+def magnitude(fourier_shift):
+    #return np.log(1 + cv2.magnitude(fourier_shift[:, :, 0],fourier_shift[:, :, 1]))
+    return np.abs(fourier_shift)   
+    #return 20*np.log(np.abs(fourier_shift))
+    #return 20*np.log(cv2.magnitude(fourier_shift[:,:,0],fourier_shift[:,:,1]))
+
+def phase(fourier):
+    return np.unwrap(np.angle(fourier))
+
+def inverse_fourier_transform(fourier_shift, percentage = 100):
+    f_ishift = np.fft.ifftshift(fourier_shift)
+    img_back = np.fft.ifft2(f_ishift)
+    return magnitude(img_back)
+

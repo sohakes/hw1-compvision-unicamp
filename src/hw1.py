@@ -60,20 +60,29 @@ def question_spacialblending():
     #Agora precisa fazer a parte com mask!
     #não pular!
 
-def question_fourierspace():
-    return  'colocar cidugi aqyu'
+def question_fourierspace(img):
+    f = fourrier_transform(img)
+    m = magnitude(f)
+    # save magnitude
+    cv2.imwrite('output/magnitude.png', m)
+    p = phase(f) 
+    # save phase
+    cv2.imwrite('output/phase.png', p)
+    ift = inverse_fourier_transform(f)
+    cv2.imwrite('output/inverse.png', ift)
+
 
 def question_frequencyblending():
     return  'colocar cidugi aqyu'
 
 def main():
     img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
-    question_convolution(img)
-    question_gaussianpyramid(img)
-    question_laplacianpyramid(img)
+    #question_convolution(img)
+    #question_gaussianpyramid(img)
+    #question_laplacianpyramid(img)
     #question_spacialblending()
     #question_spacialblending()
-    #question_fourierspace()
+    question_fourierspace(img)
     #question_frequencyblending()
 
 if __name__ == '__main__':
