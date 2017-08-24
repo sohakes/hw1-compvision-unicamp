@@ -26,6 +26,16 @@ def create_gaussian_mask(size, sigma):
 
     return mask / msum
 
+def create_circular_mask(width, height, centerx, centery, radius):
+
+    y,x = np.ogrid[-centerx:width-centerx, -centery:height-centery]
+    mask = x*x + y*y <= radius*radius
+
+    array = np.zeros((width, height))
+    array[mask] = 255
+
+    return array.astype('uint8')
+
 #got it from https://stackoverflow.com/questions/5478351/python-time-measure-function
 def timing(f):
     def wrap(*args):
@@ -67,7 +77,7 @@ def fourrier_transform(img):
 
 def magnitude(fourier_shift):
     #return np.log(1 + cv2.magnitude(fourier_shift[:, :, 0],fourier_shift[:, :, 1]))
-    return np.abs(fourier_shift)   
+    return np.abs(fourier_shift)
     #return 20*np.log(np.abs(fourier_shift))
     #return 20*np.log(cv2.magnitude(fourier_shift[:,:,0],fourier_shift[:,:,1]))
 
@@ -78,4 +88,3 @@ def inverse_fourier_transform(fourier_shift, percentage = 100):
     f_ishift = np.fft.ifftshift(fourier_shift)
     img_back = np.fft.ifft2(f_ishift)
     return magnitude(img_back)
-

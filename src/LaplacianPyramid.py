@@ -40,7 +40,7 @@ class LaplacianPyramid:
             img = self.down(img) + self.__img_arr[i]
 
         #img = img / (self.levels - 1)
-        return img.astype(np.uint8)
+        return np.clip(img, 0, 255).astype(np.uint8)
 
     #summation property
     def recover_originalbkp(self): #upsample
@@ -71,4 +71,3 @@ class LaplacianPyramid:
 
         img = self.recover_original()
         debug("original!", img.astype(np.uint8))
-

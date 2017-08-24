@@ -3,6 +3,7 @@ import numpy as np
 import math
 import time
 from BlendPyramid import *
+from BlendPyramidMask import *
 from LaplacianPyramid import *
 from GaussianPyramid import *
 from utilsHw import *
@@ -56,16 +57,17 @@ def question_spacialblending():
     img2 = cv2.imread('input/p1-1-3.png', cv2.IMREAD_GRAYSCALE)
     img = np.pad(img, ((0, 1), (0, 1)), 'edge')
     img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
-    blend_pyramid = BlendPyramid(img, img2, 6)
-    #Agora precisa fazer a parte com mask!
-    #não pular!
+    #blend_pyramid = BlendPyramid(img, img2, 6)
+    print(create_circular_mask(20,20,10,10,5))
+    blend_pyramid_mask = BlendPyramidMask(img, img2,
+     create_circular_mask(img.shape[0], img.shape[1], 220, 220, 200), 6)
 
 def question_fourierspace(img):
     f = fourrier_transform(img)
     m = magnitude(f)
     # save magnitude
     cv2.imwrite('output/magnitude.png', m)
-    p = phase(f) 
+    p = phase(f)
     # save phase
     cv2.imwrite('output/phase.png', p)
     ift = inverse_fourier_transform(f)
@@ -83,8 +85,8 @@ def main():
     #question_spacialblending()
     #question_spacialblending()
     question_fourierspace(img)
+    question_spacialblending()
     #question_frequencyblending()
 
 if __name__ == '__main__':
    main()
-
