@@ -109,14 +109,15 @@ def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percen
         return fourier
 
     def remove_magnitude(fourier, percup, percdown):
-        filtered_valup = np.min(fourier[np.nonzero(fourier)])
-        filtered_valdown = np.max(fourier)
+        fourier_abs = np.abs(fourier)
+        filtered_valup = np.min(fourier_abs[np.nonzero(fourier_abs)])
+        filtered_valdown = np.max(fourier_abs)
         if (percup != -1):
-            filtered_valup = np.percentile(fourier, percup)
+            filtered_valup = np.percentile(fourier_abs, percup)
         if (percdown != -1):
-            filtered_valdown = np.percentile(fourier, percdown)  
-        fourier[fourier > filtered_valup] = 0
-        fourier[fourier < filtered_valdown] = 0
+            filtered_valdown = np.percentile(fourier_abs, percdown)  
+        fourier[fourier_abs > filtered_valup] = 0
+        fourier[fourier_abs < filtered_valdown] = 0
         return fourier
 
     fourier_shift = fourier_shift.copy()
