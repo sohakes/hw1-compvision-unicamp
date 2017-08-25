@@ -66,12 +66,30 @@ def question_fourierspace(img):
     f = fourrier_transform(img)
     m = magnitude(f)
     # save magnitude
-    cv2.imwrite('output/magnitude.png', m)
+    cv2.imwrite('output/magnitude.png', 20*np.log(m))
+    debug("magnitude", 20*np.log(m).astype('uint8'))
     p = phase(f)
     # save phase
-    cv2.imwrite('output/phase.png', p)
-    ift = inverse_fourier_transform(f)
-    cv2.imwrite('output/inverse.png', ift)
+    cv2.imwrite('output/phase.png', (p))
+    debug("phase", (p).astype('uint8'))
+    ift = inverse_fourier_transform(f, 25.0, 100.0, 0.0, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, 25.0, 0.0, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, 100.0, 25.0, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, 100.0, 0.0, 25.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, -1, 100.0, 0.0, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, -1, 0.0, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, 100.0, -1, 0.0)
+    debug("inverse", ift)
+    ift = inverse_fourier_transform(f, 100.0, 100.0, 0.0, -1)
+    debug("inverse", ift)
+    cv2.imwrite('output/inverse.png', ift.astype('uint8'))
+    debug("inverse", ift)
 
 
 def question_frequencyblending():
@@ -85,7 +103,7 @@ def main():
     #question_spacialblending()
     #question_spacialblending()
     question_fourierspace(img)
-    question_spacialblending()
+    #question_spacialblending()
     #question_frequencyblending()
 
 if __name__ == '__main__':

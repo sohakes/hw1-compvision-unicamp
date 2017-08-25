@@ -72,6 +72,7 @@ def fourrier_transform(img):
     f = np.fft.fft2(img)
     # Fourier Shift - Put center zero.
     fs = np.fft.fftshift(f)
+    print("shapefs", fs.shape)
 
     return fs
 
@@ -79,12 +80,50 @@ def magnitude(fourier_shift):
     #return np.log(1 + cv2.magnitude(fourier_shift[:, :, 0],fourier_shift[:, :, 1]))
     return np.abs(fourier_shift)
     #return 20*np.log(np.abs(fourier_shift))
-    #return 20*np.log(cv2.magnitude(fourier_shift[:,:,0],fourier_shift[:,:,1]))
+    #return (cv2.magnitude(fourier_shift[:,:,0],fourier_shift[:,:,1]))
 
 def phase(fourier):
-    return np.unwrap(np.angle(fourier))
+    #return (cv2.phase(fourier[:,:,0],fourier[:,:,1]))
+    return (np.angle(fourier))
 
-def inverse_fourier_transform(fourier_shift, percentage = 100):
+def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percentage_magnitude_up = 100.0,
+     percentage_phase_down = 0.0, percentage_magnitude_down = 0.0):
+    """
+        This function works like this: if you don't change the percentages, it will simply recover the original image.
+        If you change the up percentages, it will zero everyone bigger than that. 
+        If you change the down percentages, it will zero everyone smaller.
+        If you change anything to -1, it will get the min or max pixel (depending if it's up or down)
+    """
+    def remove_phase(fourier, percup, percdown):
+        phases = np.angle(fourier)
+        filtered_valup = np.min(phases[np.nonzero(phases)])
+        filtered_valdown = np.max(phases)
+        if (percup != -1):
+            filtered_valup = np.percentile(phases, percup)
+        if (percdown != -1):
+            filtered_valdown = np.percentile(phases, percdown)   
+            
+        fourier[phases > filtered_valup] = 0             
+        fourier[phases < filtered_valdown] = 0
+
+        return fourier
+
+    def remove_magnitude(fourier, percup, percdown):
+        filtered_valup = np.min(fourier[np.nonzero(fourier)])
+        filtered_valdown = np.max(fourier)
+        if (percup != -1):
+            filtered_valup = np.percentile(fourier, percup)
+        if (percdown != -1):
+            filtered_valdown = np.percentile(fourier, percdown)  
+        fourier[fourier > filtered_valup] = 0
+        fourier[fourier < filtered_valdown] = 0
+        return fourier
+
+    fourier_shift = fourier_shift.copy()
+
+    fourier_shift = remove_phase(fourier_shift,percentage_phase_up, percentage_phase_down)
+    fourier_shift = remove_magnitude(fourier_shift,percentage_magnitude_up, percentage_magnitude_down)
+
     f_ishift = np.fft.ifftshift(fourier_shift)
-    img_back = np.fft.ifft2(f_ishift)
-    return magnitude(img_back)
+    img_back = np.abs(np.fft.ifft2(f_ishift))
+    return img_back.astype('uint8')
