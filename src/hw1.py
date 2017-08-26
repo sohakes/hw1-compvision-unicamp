@@ -155,13 +155,13 @@ def question_frequencyblending():
 def main():
     img = cv2.imread('input/p1-1-1.png')
   
-    question_convolution(img)
-    question_gaussianpyramid(img)
-    question_laplacianpyramid(img)
+    #question_convolution(img)
+    #question_gaussianpyramid(img)
+    #question_laplacianpyramid(img)
     #question_spacialblending()
     #question_spacialblending()
     #question_fourierspace(img)
-    #question_spacialblending()
+    question_spacialblending()
     question_frequencyblending()
 
 if __name__ == '__main__':
