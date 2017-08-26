@@ -111,8 +111,12 @@ def remove_phase(fourier, percup, percdown):
     if (percdown != -1):
         filtered_valdown = np.percentile(phases, percdown)   
         
-    fourier[phases > filtered_valup] = 0             
-    fourier[phases < filtered_valdown] = 0
+    def apply_filter(vphase, v):
+        if vphase > filtered_valup or vphase < filtered_valdown:
+            return np.abs(v)
+        return v
+    vecapply = np.vectorize(apply_filter)
+    fourier = vecapply(phases, fourier)
 
     return fourier
 
@@ -125,8 +129,13 @@ def remove_magnitude(fourier, percup, percdown):
         filtered_valup = np.percentile(fourier_abs, percup)
     if (percdown != -1):
         filtered_valdown = np.percentile(fourier_abs, percdown)  
-    fourier[fourier_abs > filtered_valup] = 0
-    fourier[fourier_abs < filtered_valdown] = 0
+
+    def apply_filter(vabs, v):
+        if vabs > filtered_valup or vabs < filtered_valdown:
+            return np.angle(v)
+        return v
+    vecapply = np.vectorize(apply_filter)
+    fourier = vecapply(fourier_abs, fourier)
     return fourier
 
 def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percentage_magnitude_up = 100.0,
@@ -165,7 +174,7 @@ def frequency_blend(img1, img2, mask):
     f1x = remove_magnitude(f1x, 100, 0)
     debug('test', inverse_fourier_transform(f1x).astype('uint8'))
     f1x = f1l
-    f1x = remove_phase(f1x, 100, 20)
+    f1x = remove_phase(f1x, 100, 0)
     f1x = remove_magnitude(f1x, 100, 0)
     debug('test', inverse_fourier_transform(f1x).astype('uint8'))
     f1x = f1l

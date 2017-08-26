@@ -161,7 +161,7 @@ def main():
     #question_spacialblending()
     #question_spacialblending()
     #question_fourierspace(img)
-    question_spacialblending()
+    #question_spacialblending()
     question_frequencyblending()
 
 if __name__ == '__main__':
