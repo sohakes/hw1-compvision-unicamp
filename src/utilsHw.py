@@ -3,7 +3,13 @@ import numpy as np
 import math
 import time
 
-DEBUG = True
+DEBUG = False
+
+def merge_color(p_b,p_g,p_r, n_access):
+    access_b = p_b.access(n_access)
+    access_r = p_r.access(n_access)
+    access_g = p_g.access(n_access)
+    return cv2.merge((access_b, access_g, access_r))   
 
 def debug(name,img):
     if DEBUG == False:
