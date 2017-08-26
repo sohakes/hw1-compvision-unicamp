@@ -15,9 +15,11 @@ from utilsHw import *
 
 def question_convolution(img):
     # Filter for tests
-    filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
+    #filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
     #filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.2,0.1,0.1,0.2,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.2]]
-    #filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
+    filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+    ,[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]
+    ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
     
     # Normalization
     filter_conv = filter_conv/np.sum(filter_conv)
@@ -28,7 +30,7 @@ def question_convolution(img):
     convg = convolution(g, np.array(filter_conv))
     convr = convolution(r, np.array(filter_conv))
     # Merge  channels    
-    conv = cv2.merge((b, g, r))
+    conv = cv2.merge((convb, convg, convr))
     debug('conv',conv)
     cv2.imwrite('output/p1-2-1-0.png', conv)
 
@@ -37,7 +39,7 @@ def question_convolution(img):
     convg = convolution_opencv(g, np.array(filter_conv))
     convr = convolution_opencv(r, np.array(filter_conv))
     # Merge channels opencv    
-    convocv =  cv2.merge((b, g, r))
+    convocv =  cv2.merge((convb, convg, convr))
     debug('convocv',convocv)
     cv2.imwrite('output/p1-2-1-1.png', convocv)
 

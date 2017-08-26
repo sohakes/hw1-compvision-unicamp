@@ -3,7 +3,7 @@ import numpy as np
 import math
 import time
 
-DEBUG = False
+DEBUG = True    
 
 def merge_color(p_b,p_g,p_r, n_access):
     access_b = p_b.access(n_access)
