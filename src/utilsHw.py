@@ -60,8 +60,8 @@ def convolution(inputimg, mask):
     #at the borders
     out = inputimg.copy()
     img = np.pad(inputimg, pad, 'edge')
-    for i in range(pad, inputimg.shape[0] - pad):
-        for j in range(pad, inputimg.shape[1] - pad):
+    for i in range(pad, inputimg.shape[0] + pad):
+        for j in range(pad, inputimg.shape[1] + pad):
             out[i - pad, j - pad] = np.sum(img[i - middle[0]:i + middle[0] + 1, j - middle[1]:j + middle[1] + 1] * mask)
 
     return out
