@@ -86,6 +86,41 @@ def phase(fourier):
     #return (cv2.phase(fourier[:,:,0],fourier[:,:,1]))
     return (np.angle(fourier))
 
+def remove_freq(fourier, radius):
+    fourier = fourier.copy()
+    mask = create_circular_mask(fourier.shape[0], fourier.shape[1], fourier.shape[0]/2, fourier.shape[1]/2, radius).astype(float) / 255
+    fourier = fourier * mask
+
+    return fourier
+
+def remove_phase(fourier, percup, percdown):
+    fourier = fourier.copy()
+    phases = np.angle(fourier)
+    filtered_valup = np.min(phases[np.nonzero(phases)])
+    filtered_valdown = np.max(phases)
+    if (percup != -1):
+        filtered_valup = np.percentile(phases, percup)
+    if (percdown != -1):
+        filtered_valdown = np.percentile(phases, percdown)   
+        
+    fourier[phases > filtered_valup] = 0             
+    fourier[phases < filtered_valdown] = 0
+
+    return fourier
+
+def remove_magnitude(fourier, percup, percdown):
+    fourier = fourier.copy()
+    fourier_abs = np.abs(fourier)
+    filtered_valup = np.min(fourier_abs[np.nonzero(fourier_abs)])
+    filtered_valdown = np.max(fourier_abs)
+    if (percup != -1):
+        filtered_valup = np.percentile(fourier_abs, percup)
+    if (percdown != -1):
+        filtered_valdown = np.percentile(fourier_abs, percdown)  
+    fourier[fourier_abs > filtered_valup] = 0
+    fourier[fourier_abs < filtered_valdown] = 0
+    return fourier
+
 def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percentage_magnitude_up = 100.0,
      percentage_phase_down = 0.0, percentage_magnitude_down = 0.0):
     """
@@ -94,31 +129,9 @@ def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percen
         If you change the down percentages, it will zero everyone smaller.
         If you change anything to -1, it will get the min or max pixel (depending if it's up or down)
     """
-    def remove_phase(fourier, percup, percdown):
-        phases = np.angle(fourier)
-        filtered_valup = np.min(phases[np.nonzero(phases)])
-        filtered_valdown = np.max(phases)
-        if (percup != -1):
-            filtered_valup = np.percentile(phases, percup)
-        if (percdown != -1):
-            filtered_valdown = np.percentile(phases, percdown)   
-            
-        fourier[phases > filtered_valup] = 0             
-        fourier[phases < filtered_valdown] = 0
+    
 
-        return fourier
 
-    def remove_magnitude(fourier, percup, percdown):
-        fourier_abs = np.abs(fourier)
-        filtered_valup = np.min(fourier_abs[np.nonzero(fourier_abs)])
-        filtered_valdown = np.max(fourier_abs)
-        if (percup != -1):
-            filtered_valup = np.percentile(fourier_abs, percup)
-        if (percdown != -1):
-            filtered_valdown = np.percentile(fourier_abs, percdown)  
-        fourier[fourier_abs > filtered_valup] = 0
-        fourier[fourier_abs < filtered_valdown] = 0
-        return fourier
 
     fourier_shift = fourier_shift.copy()
 
@@ -128,3 +141,68 @@ def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percen
     f_ishift = np.fft.ifftshift(fourier_shift)
     img_back = np.abs(np.fft.ifft2(f_ishift))
     return img_back.astype('uint8')
+
+
+def frequency_blend(img1, img2, mask):
+    img1 = img1.astype(float)
+    img2 = img2.astype(float)
+    mask = (mask.astype(float) / 255).astype(float)
+    img1mask = img1 * mask
+    img2mask = img2 * (1 - mask)
+
+    f1l = fourrier_transform(img1mask)
+    f2l = f1l
+    f1x = f1l
+    f1x = remove_phase(f1x, 80, 0)
+    f1x = remove_magnitude(f1x, 100, 0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 20)
+    f1x = remove_magnitude(f1x, 100, 0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 99.95, 0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 100, 70.0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+
+    f1l = fourrier_transform(img2mask)
+    f1x = f1l
+    f1x = remove_phase(f1x, 80, 0)
+    f1x = remove_magnitude(f1x, 100, 0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 20)
+    f1x = remove_magnitude(f1x, 100, 0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 99.95, 0)
+    f1x2 = remove_magnitude(f1l, 100, 0.05)
+    debug('test', inverse_fourier_transform(f1x + f1x2).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 100, 70.0)
+    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1l, 10) - f1l).astype('uint8'))
+    debug('test', inverse_fourier_transform(f1l - remove_freq(f1l, 10)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1l, 10) + remove_freq(f2l, 10)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1l, 50) + remove_freq(f2l, 50)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1l, 100) + remove_freq(f2l, 100)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1l, 200) + remove_freq(f2l, 200)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1x, 50)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1x, 100)).astype('uint8'))
+    debug('test', inverse_fourier_transform(remove_freq(f1x, 200)).astype('uint8'))
+
+    f1 = fourrier_transform(img1mask)
+    f1 = remove_phase(f1, 100.0, 0.0)
+    f1 = remove_magnitude(f1, 99.95, 0.0)
+    f2 = fourrier_transform(img2mask)
+    f2 = remove_phase(f2, 100.0, 0.0)
+    f2 = remove_magnitude(f2, 100.0, 0.05)
+
+    f3 = f1 + f2
+    return inverse_fourier_transform(f3)

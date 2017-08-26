@@ -93,7 +93,15 @@ def question_fourierspace(img):
 
 
 def question_frequencyblending():
-    return  'colocar cidugi aqyu'
+    img = cv2.imread('input/p1-1-4.png', cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread('input/p1-1-3.png', cv2.IMREAD_GRAYSCALE)
+    img = np.pad(img, ((0, 1), (0, 1)), 'edge')
+    img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
+    rimg = frequency_blend(img, img2,
+     create_circular_mask(img.shape[0], img.shape[1], 220, 220, 200))
+    debug("rimg", rimg)
+    
+
 
 def main():
     img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
@@ -102,9 +110,9 @@ def main():
     #question_laplacianpyramid(img)
     #question_spacialblending()
     #question_spacialblending()
-    question_fourierspace(img)
+    #question_fourierspace(img)
     #question_spacialblending()
-    #question_frequencyblending()
+    question_frequencyblending()
 
 if __name__ == '__main__':
    main()
