@@ -160,7 +160,8 @@ def main():
     #question_laplacianpyramid(img)
     #question_spacialblending()
     #question_spacialblending()
-    #question_fourierspace(img)
+    imggray = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
+    question_fourierspace(imggray)
     #question_spacialblending()
     question_frequencyblending()
 

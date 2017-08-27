@@ -113,7 +113,8 @@ def remove_phase(fourier, percup, percdown):
         
     def apply_filter(vphase, v):
         if vphase > filtered_valup or vphase < filtered_valdown:
-            return np.abs(v)
+            return np.abs(v) * np.exp(1j*0)
+            #return np.complex(np.abs(v))
         return v
     vecapply = np.vectorize(apply_filter)
     fourier = vecapply(phases, fourier)
@@ -132,7 +133,8 @@ def remove_magnitude(fourier, percup, percdown):
 
     def apply_filter(vabs, v):
         if vabs > filtered_valup or vabs < filtered_valdown:
-            return np.angle(v)
+            return 0 * np.exp(1j*np.angle(v))
+            #return np.complex(np.angle(v))
         return v
     vecapply = np.vectorize(apply_filter)
     fourier = vecapply(fourier_abs, fourier)
@@ -170,21 +172,28 @@ def frequency_blend(img1, img2, mask):
     f1l = fourrier_transform(img1mask)
     f2l = f1l
     f1x = f1l
-    f1x = remove_phase(f1x, 80, 0)
+    f1x = remove_phase(f1x, 90, 0)
     f1x = remove_magnitude(f1x, 100, 0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    debug('test1', inverse_fourier_transform(f1x).astype('uint8'))
     f1x = f1l
     f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 90, 0)
+    debug('test2', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = remove_phase(f1x, 100, 10)
     f1x = remove_magnitude(f1x, 100, 0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    debug('test3', inverse_fourier_transform(f1x).astype('uint8'))
+    f1x = f1l
+    f1x = remove_phase(f1x, 100, 0)
+    f1x = remove_magnitude(f1x, 100, 10)
+    debug('test4', inverse_fourier_transform(f1x).astype('uint8'))
     f1x = f1l
     f1x = remove_phase(f1x, 100, 0)
     f1x = remove_magnitude(f1x, 99.95, 0) - remove_magnitude(f1x, 99, 0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    debug('test5', inverse_fourier_transform(f1x).astype('uint8'))
     f1x = f1l
     f1x = remove_phase(f1x, 100, 0)
     f1x = remove_magnitude(f1x, 100, 99.0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
+    debug('test6', inverse_fourier_transform(f1x).astype('uint8'))
 
     f1l = fourrier_transform(img2mask)
     f1x = f1l
