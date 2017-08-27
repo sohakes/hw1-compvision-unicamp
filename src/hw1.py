@@ -13,7 +13,16 @@ from utilsHw import *
 # Rafael Mariottini Tomazela     RA:192803
 ############################################
 
-def question_convolution(img, filter_conv, number_init):
+NUMBER_FILE = -1
+
+# define number file for convolution
+def numFile():
+    global NUMBER_FILE
+    NUMBER_FILE = NUMBER_FILE + 1
+    return NUMBER_FILE 
+    
+
+def question_convolution(img, filter_conv):
     # Normalization
     filter_conv = filter_conv/np.sum(filter_conv)
 
@@ -25,7 +34,7 @@ def question_convolution(img, filter_conv, number_init):
     # Merge  channels    
     conv = cv2.merge((convb, convg, convr))
     debug('conv',conv)
-    cv2.imwrite('output/p1-2-1-'+ str(number_init) +'.png', conv)
+    cv2.imwrite('output/p1-2-1-'+ str(numFile()) +'.png', conv)
 
     # Split channels opencv    
     convb = convolution_opencv(b, np.array(filter_conv))
@@ -34,7 +43,8 @@ def question_convolution(img, filter_conv, number_init):
     # Merge channels opencv    
     convocv =  cv2.merge((convb, convg, convr))
     debug('convocv',convocv)
-    cv2.imwrite('output/p1-2-1-'+ str(++number_init)+'.png', convocv)
+
+    cv2.imwrite('output/p1-2-1-'+ str(numFile())+'.png', convocv)
 
     gaussian_mask = create_gaussian_mask(5, 3)
     gaussian_img_r = convolution(r, gaussian_mask)
@@ -42,7 +52,9 @@ def question_convolution(img, filter_conv, number_init):
     gaussian_img_b = convolution(b, gaussian_mask)
     gaussian_img = cv2.merge((gaussian_img_b, gaussian_img_g, gaussian_img_r))
     debug('gaussian_img',gaussian_img)
-    cv2.imwrite('output/p1-2-1-'+ str(++number_init)+'.png', gaussian_img)
+
+    cv2.imwrite('output/p1-2-1-'+ str(numFile()) +'.png', gaussian_img)
+
 
 def question_gaussianpyramid(img, level):
     b,g,r = cv2.split(img) 
@@ -147,12 +159,12 @@ def main():
   
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
-    question_convolution(img, filter_conv, 0)   
+    question_convolution(img, filter_conv)   
 
     # Test filter 7 x 7
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv, 3)   
+    question_convolution(img, filter_conv)   
 
     # Test filter 15 x 15
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
@@ -166,7 +178,7 @@ def main():
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv, 6) 
+    question_convolution(img, filter_conv) 
     
     # Test: level 5
     question_gaussianpyramid(img, 5)
