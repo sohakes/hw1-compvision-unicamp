@@ -204,10 +204,17 @@ def main():
     #question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
     
     # Test: With  mask
-    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
-    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
+    #question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
+    #question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
 
     #question_fourierspace(img)
+    #question_convolution(img)
+    #question_gaussianpyramid(img)
+    #question_laplacianpyramid(img)
+    #question_spacialblending()
+    #question_spacialblending()
+    imggray = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
+    question_fourierspace(imggray)
     #question_spacialblending()
     #question_frequencyblending()
 
