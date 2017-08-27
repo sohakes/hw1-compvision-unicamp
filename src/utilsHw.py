@@ -237,14 +237,14 @@ def frequency_blend(img1, img2, mask):
         f2 = remove_magnitude(f2, p7,p8)
         f3 = f1 + f2
         debug('test', inverse_fourier_transform(f3).astype('uint8'))
-
+    """
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
     do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-
+    """
     f1 = fourrier_transform(img1mask)
     f1 = remove_phase(f1, 100.0, 0.0)
     f1 = remove_magnitude(f1, 99.95, 0.0)
