@@ -3,13 +3,18 @@ import numpy as np
 import math
 import time
 
-DEBUG = True    
+DEBUG = False    
 
 def merge_color(p_b,p_g,p_r, n_access):
     access_b = p_b.access(n_access)
     access_r = p_r.access(n_access)
     access_g = p_g.access(n_access)
     return cv2.merge((access_b, access_g, access_r))   
+
+def debug_print(val):
+   if DEBUG == False:
+        return
+   print(val)
 
 def debug(name,img):
     if DEBUG == False:
@@ -48,7 +53,7 @@ def timing(f):
         time1 = time.time()
         ret = f(*args)
         time2 = time.time()
-        print('%s function took %0.3f ms' % (f.__name__, (time2 - time1) * 1000.0))
+        debug_print(str('%s function took %0.3f ms' % (f.__name__, (time2 - time1) * 1000.0)))
         return ret
     return wrap
 
@@ -78,18 +83,14 @@ def fourrier_transform(img):
     f = np.fft.fft2(img)
     # Fourier Shift - Put center zero.
     fs = np.fft.fftshift(f)
-    print("shapefs", fs.shape)
+    debug_print(str("shapefs " + str(fs.shape)))
 
     return fs
 
 def magnitude(fourier_shift):
-    #return np.log(1 + cv2.magnitude(fourier_shift[:, :, 0],fourier_shift[:, :, 1]))
     return np.abs(fourier_shift)
-    #return 20*np.log(np.abs(fourier_shift))
-    #return (cv2.magnitude(fourier_shift[:,:,0],fourier_shift[:,:,1]))
 
 def phase(fourier):
-    #return (cv2.phase(fourier[:,:,0],fourier[:,:,1]))
     return (np.angle(fourier))
 
 def remove_freq(fourier, radius):
@@ -135,9 +136,6 @@ def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percen
         If you change the down percentages, it will zero everyone smaller.
         If you change anything to -1, it will get the min or max pixel (depending if it's up or down)
     """
-    
-
-
 
     fourier_shift = fourier_shift.copy()
 

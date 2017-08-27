@@ -11,16 +11,12 @@ class BlendPyramidMask(LaplacianPyramid):
         img1 = img1.astype(float)
         img2 = img2.astype(float)
         mask = (mask.astype(float) / 255).astype(float)
-        print(mask)
-
         return (mask * img1 + (1 - mask) * img2)
 
 
     def __init__(self, img1, img2, mask, levels):
         self.image = self.__mix(img1, img2, mask).astype(int)
         debug("mask", mask.astype('uint8'))
-        print(mask)
-
         #debug("blendit!", self.image.astype(np.uint8))
         self.levels = levels
         self.__img1_laplacian = LaplacianPyramid(img1, levels)
@@ -34,5 +30,4 @@ class BlendPyramidMask(LaplacianPyramid):
             self.__mask_pyramid.access(i)))
 
 
-        img = self.recover_original()
-        debug("original!", img.astype(np.uint8))
+
