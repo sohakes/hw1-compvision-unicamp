@@ -79,10 +79,25 @@ def question_laplacianpyramid(img,level):
         access = merge_color( laplacian_pyramid_b, laplacian_pyramid_g, laplacian_pyramid_r,i) 
         cv2.imwrite('output/p1-3-'+ str(i) +'.png', access)
 
+def defineMask(r,g,b, mask_type, file_name):
+    if (mask_type == 'circle'):
+        print('circle here')
+        mask_r = create_circular_mask(r.shape[0], r.shape[1], 220, 220, 200)
+        mask_g = create_circular_mask(g.shape[0], g.shape[1], 220, 220, 200)
+        mask_b = create_circular_mask(b.shape[0], b.shape[1], 220, 220, 200)
+        return r,g,b
+    else:
+        print(file_name)
+        mask = cv2.imread('input/'+ str(file_name))
+        bm,gm,rm = cv2.split(mask)
+        rm = np.pad(rm, ((0, 1), (0, 1)), 'edge')
+        gm = np.pad(gm, ((0, 1), (0, 1)), 'edge')
+        bm = np.pad(bm, ((0, 1), (0, 1)), 'edge')    
+        return rm,gm,bm
 
-def question_spacialblending(namefile, namefile2, hasMask, namefile_final):
-    img = cv2.imread('input/' + str(namefile))
-    img2 = cv2.imread('input/'+ str(namefile2))
+def question_spacialblending(filename, filename2, hasMask, filename_final, mask_type, maskfile):
+    img = cv2.imread('input/' + str(filename))
+    img2 = cv2.imread('input/'+ str(filename2))
     
     b,g,r = cv2.split(img)
     b2,g2,r2 = cv2.split(img2)  
@@ -95,9 +110,7 @@ def question_spacialblending(namefile, namefile2, hasMask, namefile_final):
     r2 = np.pad(r2, ((0, 1), (0, 1)), 'edge')
 
     if (hasMask):
-        mask_r = create_circular_mask(r.shape[0], r.shape[1], 220, 220, 200)
-        mask_g = create_circular_mask(g.shape[0], g.shape[1], 220, 220, 200)
-        mask_b = create_circular_mask(b.shape[0], b.shape[1], 220, 220, 200)
+        mask_r,mask_g, mask_b = defineMask(r,g,b, mask_type , maskfile)        
         pyramid_r = BlendPyramidMask(r, r2, mask_r,5)
         pyramid_g = BlendPyramidMask(g, g2, mask_g,5)
         pyramid_b = BlendPyramidMask(b, b2, mask_b,5)
@@ -111,7 +124,7 @@ def question_spacialblending(namefile, namefile2, hasMask, namefile_final):
     img_b = pyramid_b.recover_original()
  
     img = cv2.merge((img_b, img_g, img_r)) 
-    cv2.imwrite('output/' + str(namefile_final),  img.astype(np.uint8))    
+    cv2.imwrite('output/' + str(filename_final),  img.astype(np.uint8))    
 
 def question_fourierspace(img):
     f = fourrier_transform(img)
@@ -159,12 +172,12 @@ def main():
   
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
-    question_convolution(img, filter_conv)   
+    #question_convolution(img, filter_conv)   
 
     # Test filter 7 x 7
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv)   
+    #question_convolution(img, filter_conv)   
 
     # Test filter 15 x 15
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
@@ -178,21 +191,21 @@ def main():
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv) 
+    #question_convolution(img, filter_conv) 
     
     # Test: level 5
-    question_gaussianpyramid(img, 5)
+    #question_gaussianpyramid(img, 5)
 
     # Test: level 5  
-    question_laplacianpyramid(img, 5)
+    #question_laplacianpyramid(img, 5)
 
     # Test : Without mask
-    question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png')
-    question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png')
+    #question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
+    #question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
     
     # Test: With  mask
-    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png')
-    #question_spacialblending('p1-1-5.png','p1-1-6.png',True,'p1-4-3.png')
+    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
+    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
 
     #question_fourierspace(img)
     #question_spacialblending()
