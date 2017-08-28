@@ -133,15 +133,26 @@ def question_fourierspace(img, m):
         cv2.imwrite('output/p1-5-'+ str(i+6) +'.png', ift)    
 
 
-def question_frequencyblending():
-    img = cv2.imread('input/p1-1-4.png', cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread('input/p1-1-3.png', cv2.IMREAD_GRAYSCALE)
-    img = np.pad(img, ((0, 1), (0, 1)), 'edge')
-    img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
-    rimg = frequency_blend(img, img2,
-     create_circular_mask(img.shape[0], img.shape[1], 220, 220, 200))
-    debug("rimg", rimg)
+def question_frequencyblending(filename, filename2, filename_final, mask_type, maskfile):
+    img = cv2.imread('input/' + str(filename))
+    img2 = cv2.imread('input/'+ str(filename2))
     
+    b,g,r = cv2.split(img)
+    b2,g2,r2 = cv2.split(img2)  
+    
+    b = np.pad(b, ((0, 1), (0, 1)), 'edge')
+    b2 = np.pad(b2, ((0, 1), (0, 1)), 'edge')
+    g = np.pad(g, ((0, 1), (0, 1)), 'edge')
+    g2 = np.pad(g2, ((0, 1), (0, 1)), 'edge')    
+    r = np.pad(r, ((0, 1), (0, 1)), 'edge')
+    r2 = np.pad(r2, ((0, 1), (0, 1)), 'edge')
+    
+    mask_r,mask_g, mask_b = defineMask(r,g,b, mask_type , maskfile)  
+    fb_r = frequency_blend(r, r2 , mask_r)
+    fb_g = frequency_blend(g, g2 , mask_g)
+    fb_b = frequency_blend(b, b2 , mask_b)
+    fb = cv2.merge((fb_b,fb_g,fb_r))
+    cv2.imwrite('output/'+ filename_final +'.png', fb.astype(np.uint8)) 
 
 
 def main():
@@ -154,7 +165,7 @@ def main():
     # Test filter 7 x 7
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv)   
+    #question_convolution(img, filter_conv)   
 
     # Test filter 15 x 15
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
@@ -168,21 +179,21 @@ def main():
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
-    question_convolution(img, filter_conv) 
+    #question_convolution(img, filter_conv) 
     
     # Test: level 5
-    question_gaussianpyramid(img, 5)
+    #question_gaussianpyramid(img, 5)
 
     # Test: level 5  
-    question_laplacianpyramid(img, 5)
+    #question_laplacianpyramid(img, 5)
 
     # Test : Without mask
-    question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
-    question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
+    #question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
+    #question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
     
     # Test: With  mask
-    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
-    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
+    #question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
+    #question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
 
     # Test: Each row has:
     #       col 1: percentage_phase_up , 
@@ -199,9 +210,10 @@ def main():
         [100.0, 100.0, -1, 0.0],
         [100.0, 100.0, 0.0, -1]]
     
-    question_fourierspace(img,m)
+    #question_fourierspace(img,m)
 
-    #question_frequencyblending()
+    # Test: With mask
+    question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
 
 if __name__ == '__main__':
    main()
