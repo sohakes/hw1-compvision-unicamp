@@ -13,15 +13,6 @@ from utilsHw import *
 # Rafael Mariottini Tomazela     RA:192803
 ############################################
 
-NUMBER_FILE = -1
-
-# define number file for convolution
-def numFile():
-    global NUMBER_FILE
-    NUMBER_FILE = NUMBER_FILE + 1
-    return NUMBER_FILE 
-    
-
 def question_convolution(img, filter_conv):
     # Normalization
     filter_conv = filter_conv/np.sum(filter_conv)
@@ -79,22 +70,6 @@ def question_laplacianpyramid(img,level):
         access = merge_color( laplacian_pyramid_b, laplacian_pyramid_g, laplacian_pyramid_r,i) 
         cv2.imwrite('output/p1-3-'+ str(i) +'.png', access)
 
-def defineMask(r,g,b, mask_type, file_name):
-    if (mask_type == 'circle'):
-        print('circle here')
-        mask_r = create_circular_mask(r.shape[0], r.shape[1], 220, 220, 200)
-        mask_g = create_circular_mask(g.shape[0], g.shape[1], 220, 220, 200)
-        mask_b = create_circular_mask(b.shape[0], b.shape[1], 220, 220, 200)
-        return r,g,b
-    else:
-        print(file_name)
-        mask = cv2.imread('input/'+ str(file_name))
-        bm,gm,rm = cv2.split(mask)
-        rm = np.pad(rm, ((0, 1), (0, 1)), 'edge')
-        gm = np.pad(gm, ((0, 1), (0, 1)), 'edge')
-        bm = np.pad(bm, ((0, 1), (0, 1)), 'edge')    
-        return rm,gm,bm
-
 def question_spacialblending(filename, filename2, hasMask, filename_final, mask_type, maskfile):
     img = cv2.imread('input/' + str(filename))
     img2 = cv2.imread('input/'+ str(filename2))
@@ -126,34 +101,36 @@ def question_spacialblending(filename, filename2, hasMask, filename_final, mask_
     img = cv2.merge((img_b, img_g, img_r)) 
     cv2.imwrite('output/' + str(filename_final),  img.astype(np.uint8))    
 
-def question_fourierspace(img):
-    f = fourrier_transform(img)
-    m = magnitude(f)
-    # save magnitude
-    cv2.imwrite('output/magnitude.png', 20*np.log(m))
-    debug("magnitude", 20*np.log(m).astype('uint8'))
-    p = phase(f)
-    # save phase
-    cv2.imwrite('output/phase.png', (p))
-    debug("phase", (p).astype('uint8'))
-    ift = inverse_fourier_transform(f, 25.0, 100.0, 0.0, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, 99.0, 0.0, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, 100.0, 25.0, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, 100.0, 0.0, 99.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, -1, 100.0, 0.0, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, -1, 0.0, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, 100.0, -1, 0.0)
-    debug("inverse", ift)
-    ift = inverse_fourier_transform(f, 100.0, 100.0, 0.0, -1)
-    debug("inverse", ift)
-    cv2.imwrite('output/inverse.png', ift.astype('uint8'))
-    debug("inverse", ift)
+def question_fourierspace(img, m):
+    b,g,r = cv2.split(img)
+    f_r = fourrier_transform(r)
+    f_g = fourrier_transform(g)
+    f_b = fourrier_transform(b)
+    
+    m_r = magnitude(r)
+    m_g = magnitude(g)
+    m_b = magnitude(b)
+
+    cv2.imwrite('output/p1-5-0.png', (20*np.log(m_r)).astype('uint8'))
+    cv2.imwrite('output/p1-5-1.png', (20*np.log(m_g)).astype('uint8'))
+    cv2.imwrite('output/p1-5-2.png', (20*np.log(m_b)).astype('uint8'))
+    
+    p_r = phase(f_r)
+    p_g = phase(f_g)
+    p_b = phase(f_b)
+    
+    cv2.imwrite('output/p1-5-3.png', p_r)
+    cv2.imwrite('output/p1-5-4.png', p_g)
+    cv2.imwrite('output/p1-5-5.png', p_b)
+
+    r = len(m)
+
+    for i in range(0,r):
+        ift_r = inverse_fourier_transform(f_r,m[i][0],m[i][1],m[i][2],m[i][3])
+        ift_b = inverse_fourier_transform(f_b,m[i][0],m[i][1],m[i][2],m[i][3])
+        ift_g = inverse_fourier_transform(f_g,m[i][0],m[i][1],m[i][2],m[i][3])
+        ift = cv2.merge((ift_b, ift_g, ift_r)) 
+        cv2.imwrite('output/p1-5-'+ str(i+6) +'.png', ift)    
 
 
 def question_frequencyblending():
@@ -177,7 +154,7 @@ def main():
     # Test filter 7 x 7
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1]]
-    #question_convolution(img, filter_conv)   
+    question_convolution(img, filter_conv)   
 
     # Test filter 15 x 15
     filter_conv = [[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
@@ -191,31 +168,39 @@ def main():
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
     ,[0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]
     ,[0.1,0.1,0.1,0.1,0.1,0.1,0.2,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.1]]
-    #question_convolution(img, filter_conv) 
+    question_convolution(img, filter_conv) 
     
     # Test: level 5
-    #question_gaussianpyramid(img, 5)
+    question_gaussianpyramid(img, 5)
 
     # Test: level 5  
-    #question_laplacianpyramid(img, 5)
+    question_laplacianpyramid(img, 5)
 
     # Test : Without mask
-    #question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
-    #question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
+    question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
+    question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
     
     # Test: With  mask
-    #question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
-    #question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
+    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
+    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
 
-    #question_fourierspace(img)
-    #question_convolution(img)
-    #question_gaussianpyramid(img)
-    #question_laplacianpyramid(img)
-    #question_spacialblending()
-    #question_spacialblending()
-    imggray = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
-    question_fourierspace(imggray)
-    #question_spacialblending()
+    # Test: Each row has:
+    #       col 1: percentage_phase_up , 
+    #       col 2: percentage_magnitude_up , 
+    #       col 3: percentage_phase_down ,
+    #       col 4: percentage_magnitude_down
+   
+    m =[[25.0, 100.0, 0.0, 0.0],
+        [100.0, 99.0, 0.0, 0.0],
+        [100.0, 100.0, 25.0, 0.0],
+        [100.0, 100.0, 0.0, 99.0],
+        [-1, 100.0, 0.0, 0.0],
+        [100.0, -1, 0.0, 0.0],
+        [100.0, 100.0, -1, 0.0],
+        [100.0, 100.0, 0.0, -1]]
+    
+    question_fourierspace(img,m)
+
     #question_frequencyblending()
 
 if __name__ == '__main__':

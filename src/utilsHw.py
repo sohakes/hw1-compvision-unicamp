@@ -3,7 +3,28 @@ import numpy as np
 import math
 import time
 
-DEBUG = True
+DEBUG = False
+NUMBER_FILE = -1
+
+# define number file for convolution
+def numFile():
+    global NUMBER_FILE
+    NUMBER_FILE = NUMBER_FILE + 1
+    return NUMBER_FILE 
+
+def defineMask(r,g,b, mask_type, file_name):
+    if (mask_type == 'circle'):
+        mask_r = create_circular_mask(r.shape[0], r.shape[1], 220, 220, 200)
+        mask_g = create_circular_mask(g.shape[0], g.shape[1], 220, 220, 200)
+        mask_b = create_circular_mask(b.shape[0], b.shape[1], 220, 220, 200)
+        return r,g,b
+    else:
+        mask = cv2.imread('input/'+ str(file_name))
+        bm,gm,rm = cv2.split(mask)
+        rm = np.pad(rm, ((0, 1), (0, 1)), 'edge')
+        gm = np.pad(gm, ((0, 1), (0, 1)), 'edge')
+        bm = np.pad(bm, ((0, 1), (0, 1)), 'edge')    
+        return rm,gm,bm    
 
 def merge_color(p_b,p_g,p_r, n_access):
     access_b = p_b.access(n_access)
