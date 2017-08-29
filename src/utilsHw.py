@@ -178,7 +178,7 @@ def remove_magnitude(fourier, percup, percdown):
     return fourier
 
 def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percentage_magnitude_up = 100.0,
-     percentage_phase_down = 0.0, percentage_magnitude_down = 0.0):
+     percentage_phase_down = 100.0, percentage_magnitude_down = 100.0):
     """
         This function works like this: if you don't change the percentages, it will simply recover the original image.
         If you change the up percentages, it will zero everyone bigger than that. 
