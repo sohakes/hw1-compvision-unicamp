@@ -205,15 +205,10 @@ def main():
     #       col 3: percentage_phase_down ,
     #       col 4: percentage_magnitude_down
    
-    m =[[25.0, 100.0, 0.0, 0.0],
-        [100.0, 99.0, 0.0, 0.0],
-        [100.0, 100.0, 25.0, 0.0],
-        [100.0, 100.0, 0.0, 99.0],
-        [-1, 100.0, 0.0, 0.0],
-        [100.0, -1, 0.0, 0.0],
-        [100.0, 100.0, -1, 0.0],
-        [100.0, 100.0, 0.0, -1]]
-    
+    vals = [-1, 25.0, 50.0, 75.0, 100.0]
+
+    m = [[[x if i == j else 100.0 for j in range(4)] for x in vals] for i in range(4)]
+    m = sum(m, [])
     question_fourierspace(img,m)
     
     # Test: With mask
