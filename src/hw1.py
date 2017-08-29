@@ -110,9 +110,9 @@ def question_fourierspace(img, m):
     f_g = fourrier_transform(g)
     f_b = fourrier_transform(b)
     
-    m_r = magnitude(r)
-    m_g = magnitude(g)
-    m_b = magnitude(b)
+    m_r = magnitude(f_r)
+    m_g = magnitude(f_g)
+    m_b = magnitude(f_b)
 
     cv2.imwrite('output/p1-5-0.png', (20*np.log(m_r)).astype('uint8'))
     cv2.imwrite('output/p1-5-1.png', (20*np.log(m_g)).astype('uint8'))
@@ -122,9 +122,9 @@ def question_fourierspace(img, m):
     p_g = phase(f_g)
     p_b = phase(f_b)
     
-    cv2.imwrite('output/p1-5-3.png', p_r)
-    cv2.imwrite('output/p1-5-4.png', p_g)
-    cv2.imwrite('output/p1-5-5.png', p_b)
+    cv2.imwrite('output/p1-5-3.png', p_r.astype('uint8'))
+    cv2.imwrite('output/p1-5-4.png', p_g.astype('uint8'))
+    cv2.imwrite('output/p1-5-5.png', p_b.astype('uint8'))
 
     r = len(m)
 
@@ -204,16 +204,16 @@ def main():
     #       col 2: percentage_magnitude_up , 
     #       col 3: percentage_phase_down ,
     #       col 4: percentage_magnitude_down
-   
+   """
     vals = [-1, 25.0, 50.0, 75.0, 100.0]
-
+    
     m = [[[x if i == j else 100.0 for j in range(4)] for x in vals] for i in range(4)]
     m = sum(m, [])
     question_fourierspace(img,m)
     
     # Test: With mask
-    question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
-    """
+    #question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
+    
 
     img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
     img1 = cv2.imread('input/p1-1-10.png', cv2.IMREAD_GRAYSCALE)
