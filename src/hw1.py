@@ -4,8 +4,11 @@ import math
 import time
 from BlendPyramid import *
 from BlendPyramidMask import *
+from BlendPyramidMaskFourrier import *
 from LaplacianPyramid import *
+from LaplacianPyramidFourrier import *
 from GaussianPyramid import *
+from GaussianPyramidFourrier import *
 from utilsHw import *
 
 ################  HW1  #####################
@@ -157,6 +160,7 @@ def question_frequencyblending(filename, filename2, filename_final, mask_type, m
 
 def main():
     img = cv2.imread('input/p1-1-1.png')
+    """
   
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
@@ -211,9 +215,38 @@ def main():
         [100.0, 100.0, 0.0, -1]]
     
     question_fourierspace(img,m)
-
+    
     # Test: With mask
     question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
+    """
+
+    img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
+    img1 = cv2.imread('input/p1-1-10.png', cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread('input/p1-1-11.png', cv2.IMREAD_GRAYSCALE)
+    mask = cv2.imread('input/p1-1-9.png', cv2.IMREAD_GRAYSCALE)
+    img1 = np.pad(img1, ((0, 1), (0, 1)), 'edge')
+    img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
+    mask = np.pad(mask, ((0, 1), (0, 1)), 'edge')
+    imgf = fourrier_transform(img1)
+    img1f = fourrier_transform(img1)
+    img2f = fourrier_transform(img2)
+    maskf = fourrier_transform(mask)
+    p3 = LaplacianPyramid(img1, 5)
+    p5 = GaussianPyramid(img1, 5)
+    p = GaussianPyramidFourrier(img1f, 5)
+    p2 = LaplacianPyramidFourrier(imgf, 5)
+    p4 = BlendPyramidMaskFourrier(img1f,img2f,maskf,5)
+    p6 = BlendPyramidMask(img1,img2,mask,5)
+    pback = inverse_fourier_transform(p.down(1))
+    p2back = inverse_fourier_transform(p2.access(2))
+    debug("pback", pback)
+    debug("p5back", p5.down(1).astype('uint8'))
+    debug("p2back", p2back)
+    debug("laplac original", inverse_fourier_transform(p2.recover_original()))
+    debug("blend fourrier", inverse_fourier_transform(p4.recover_original()/2))
+    debug("blend original", p6.recover_original())
+    debug("p3back", p3.access(2).astype('uint8'))
+
 
 if __name__ == '__main__':
    main()
