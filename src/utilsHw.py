@@ -144,6 +144,7 @@ def remove_phase(fourier, percup, percdown):
     if (percup != -1):
         filtered_valup = np.percentile(phases, percup)
     if (percdown != -1):
+        percdown = 100 - percdown
         filtered_valdown = np.percentile(phases, percdown)   
         
     def apply_filter(vphase, v):
@@ -164,6 +165,7 @@ def remove_magnitude(fourier, percup, percdown):
     if (percup != -1):
         filtered_valup = np.percentile(fourier_abs, percup)
     if (percdown != -1):
+        percdown = 100 - percdown
         filtered_valdown = np.percentile(fourier_abs, percdown)  
 
     def apply_filter(vabs, v):
@@ -180,7 +182,7 @@ def inverse_fourier_transform(fourier_shift, percentage_phase_up = 100.0, percen
     """
         This function works like this: if you don't change the percentages, it will simply recover the original image.
         If you change the up percentages, it will zero everyone bigger than that. 
-        If you change the down percentages, it will zero everyone smaller.
+        If you change the down percentages, it will zero everyone smaller, but starting from the biggest ones (so 75 would remove the 25 lower).
         If you change anything to -1, it will get the min or max pixel (depending if it's up or down)
     """
 
