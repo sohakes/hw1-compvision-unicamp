@@ -135,8 +135,8 @@ def question_fourierspace(img, m):
         ift = cv2.merge((ift_b, ift_g, ift_r)) 
         cv2.imwrite('output/p1-3-1-'+ str(i+6) +'.png', ift)    
 
-
-def question_frequencyblending(filename, filename2, filename_final, mask_type, maskfile):
+#just some tests
+def question_frequencyblending(filename, filename2, start, mask_type, maskfile):
     img = cv2.imread('input/' + str(filename))
     img2 = cv2.imread('input/'+ str(filename2))
     
@@ -151,17 +151,41 @@ def question_frequencyblending(filename, filename2, filename_final, mask_type, m
     r2 = np.pad(r2, ((0, 1), (0, 1)), 'edge')
     
     mask_r,mask_g, mask_b = defineMask(r,g,b, mask_type , maskfile)  
-    fb_r = frequency_blend(r, r2 , mask_r)
-    fb_g = frequency_blend(g, g2 , mask_g)
-    fb_b = frequency_blend(b, b2 , mask_b)
-    fb = cv2.merge((fb_b,fb_g,fb_r))
-    cv2.imwrite('output/'+ filename_final +'.png', fb.astype(np.uint8)) 
+    fb_rg = frequency_blend(r, r2 , mask_r)
+    fb_gg = frequency_blend(g, g2 , mask_g)
+    fb_bg = frequency_blend(b, b2 , mask_b)
+    for (fb_r, fb_g, fb_b) in zip(fb_rg, fb_gg, fb_bg):
+        fb = cv2.merge((fb_b,fb_g,fb_r))
+        cv2.imwrite('output/p1-3-2-'+ str(start) +'.png', fb.astype(np.uint8)) 
+        start+=1
 
+def question_frequencyblending_pyramid(filename, filename2, filename_final, maskfile):
+    img = cv2.imread('input/' + str(filename))
+    img2 = cv2.imread('input/'+ str(filename2))
+    
+    b,g,r = cv2.split(img)
+    b2,g2,r2 = cv2.split(img2)  
+    
+    b = np.pad(b, ((0, 1), (0, 1)), 'edge')
+    b2 = np.pad(b2, ((0, 1), (0, 1)), 'edge')
+    g = np.pad(g, ((0, 1), (0, 1)), 'edge')
+    g2 = np.pad(g2, ((0, 1), (0, 1)), 'edge')    
+    r = np.pad(r, ((0, 1), (0, 1)), 'edge')
+    r2 = np.pad(r2, ((0, 1), (0, 1)), 'edge')
+    
+    mask_r,mask_g, mask_b = defineMask(r,g,b, False , maskfile)  
+    fb_r = BlendPyramidMaskFourrier(fourrier_transform(r), fourrier_transform(r2), fourrier_transform(mask_r),5)
+    fb_g = BlendPyramidMaskFourrier(fourrier_transform(g), fourrier_transform(g2), fourrier_transform(mask_g),5)
+    fb_b = BlendPyramidMaskFourrier(fourrier_transform(b), fourrier_transform(b2), fourrier_transform(mask_b),5)
+    fb = cv2.merge((inverse_fourier_transform(fb_b.recover_original()),
+        inverse_fourier_transform(fb_g.recover_original()),
+        inverse_fourier_transform(fb_r.recover_original())))
+    cv2.imwrite('output/'+ filename_final +'.png', fb.astype(np.uint8)) 
 
 def main():
     img = cv2.imread('input/p1-1-1.png')
     
-  
+    """
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
     question_convolution(img, filter_conv)   
@@ -212,39 +236,9 @@ def main():
     question_fourierspace(img,m)
     """
     # Test: With mask
-    question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
-    
+    question_frequencyblending('p1-1-10.png','p1-1-11.png',1, False, 'p1-1-9.png')
+    #question_frequencyblending_pyramid('p1-1-10.png', 'p1-1-11.png', 'p1-3-2-0', 'p1-1-9.png')
 
-    img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
-    img1 = cv2.imread('input/p1-1-10.png', cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread('input/p1-1-11.png', cv2.IMREAD_GRAYSCALE)
-    mask = cv2.imread('input/p1-1-9.png', cv2.IMREAD_GRAYSCALE)
-    img1 = np.pad(img1, ((0, 1), (0, 1)), 'edge')
-    img2 = np.pad(img2, ((0, 1), (0, 1)), 'edge')
-    mask = np.pad(mask, ((0, 1), (0, 1)), 'edge')
-    imgf = fourrier_transform(img1)
-    img1f = fourrier_transform(img1)
-    img2f = fourrier_transform(img2)
-    maskf = fourrier_transform(mask)
-    
-    p = GaussianPyramidFourrier(img1f, 5)
-    
-    pback = inverse_fourier_transform(p.access(1))
-    p5 = GaussianPyramid(img1, 5)
-    debug("gaussian fourrier", pback)    
-    debug("gaussian orig", p5.access(1).astype('uint8'))
-    p3 = LaplacianPyramid(img1, 5)
-    
-    p2 = LaplacianPyramidFourrier(imgf, 5)
-    p4 = BlendPyramidMaskFourrier(img1f,img2f,maskf,5)
-    p6 = BlendPyramidMask(img1,img2,mask,5)
-    p2back = inverse_fourier_transform(p2.access(2))
-    debug("p2back", p2back)
-    debug("laplac original", inverse_fourier_transform(p2.recover_original()))
-    debug("blend fourrier", inverse_fourier_transform(p4.recover_original()/2))
-    debug("blend original", p6.recover_original())
-    debug("p3back", p3.access(2).astype('uint8'))
-    """
 
 if __name__ == '__main__':
    main()

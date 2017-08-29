@@ -257,93 +257,36 @@ def frequency_blend(img1, img2, mask):
     img1 = img1.astype(float)
     img2 = img2.astype(float)
     mask = (mask.astype(float) / 255).astype(float)
+    assert img1.shape == img2.shape == mask.shape
     img1mask = img1 * mask
     img2mask = img2 * (1 - mask)
+    size = img1.shape[0]
 
-    f1l = fourrier_transform(img1mask)
-    f2l = f1l
-    f1x = f1l
-    f1x = remove_phase(f1x, 90, 0)
-    f1x = remove_magnitude(f1x, 100, 0)
-    debug('test1', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 90, 0)
-    debug('test2', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = remove_phase(f1x, 100, 10)
-    f1x = remove_magnitude(f1x, 100, 0)
-    debug('test3', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 100, 10)
-    debug('test4', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 99.95, 0) - remove_magnitude(f1x, 99, 0)
-    debug('test5', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 100, 99.0)
-    debug('test6', inverse_fourier_transform(f1x).astype('uint8'))
+    f1o = fourrier_transform(img1mask)
+    f2o = fourrier_transform(img2mask)
+    f1, f2 = f1o, f2o
 
-    f1l = fourrier_transform(img2mask)
-    f1x = f1l
-    debug('test', inverse_fourier_transform(remove_magnitude(f1l, 100, 98) + remove_magnitude(f2l, 100, 98)).astype('uint8'))
-    a, b, c = 10, 20, 1.1
-    debug('truuue', inverse_fourier_transform(remove_freq(f1x, a)/c + remove_freq(f1x, b, True)/c + remove_freq(remove_freq(f1x, b), a, True) + 
-        remove_freq(f2l, a)/c + remove_freq(f2l, b, True)/c + remove_freq(remove_freq(f2l, b), a, True)).astype('uint8'))
-
-
-    f1x = remove_phase(f1x, 80, 0)
-    f1x = remove_magnitude(f1x, 100, 0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 20)
-    f1x = remove_magnitude(f1x, 100, 0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 99.95, 0)
-    f1x2 = remove_magnitude(f1l, 100, 0.05)
-    debug('test', inverse_fourier_transform(f1x + f1x2).astype('uint8'))
-    f1x = f1l
-    f1x = remove_phase(f1x, 100, 0)
-    f1x = remove_magnitude(f1x, 100, 70.0)
-    debug('test', inverse_fourier_transform(f1x).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1l, 10) - f1l).astype('uint8'))
-    debug('test', inverse_fourier_transform(f1l - remove_freq(f1l, 10)).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1l, 10) + remove_freq(f2l, 10)).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1l, 50) + remove_freq(f2l, 50)).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1l, 100) + remove_freq(f2l, 100)).astype('uint8'))
-    debug('test', inverse_fourier_transform(f1l + f2l + remove_freq(f1l, 10) + remove_freq(f2l, 10)).astype('uint8'))
-    debug('truuue', inverse_fourier_transform(remove_freq(f1x, 10, True)).astype('uint8'))
-    debug('truuue', inverse_fourier_transform(remove_freq(f1x, 5, True)).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1x, 100)).astype('uint8'))
-    debug('test', inverse_fourier_transform(remove_freq(f1x, 200)).astype('uint8'))
-
-    def do_tests(img1, img2, p1,p2,p3,p4,p5,p6,p7,p8):
-        f1 = fourrier_transform(img1)
-        f1 = remove_phase(f1, p1, p2)
-        f1 = remove_magnitude(f1, p3, p4)
-        f2 = fourrier_transform(img2)
-        f2 = remove_phase(f2, p5,p6)
-        f2 = remove_magnitude(f2, p7,p8)
-        f3 = f1 + f2
-        debug('test', inverse_fourier_transform(f3).astype('uint8'))
-    """
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    do_tests(f1,f2,100.0,0.0,99.95,0.0,100.0,0.0,100.0,0.05)
-    """
-    f1 = fourrier_transform(img1mask)
-    f1 = remove_phase(f1, 100.0, 0.0)
-    f1 = remove_magnitude(f1, 99.95, 0.0)
-    f2 = fourrier_transform(img2mask)
-    f2 = remove_phase(f2, 100.0, 0.0)
-    f2 = remove_magnitude(f2, 100.0, 0.05)
-
+    #simple sum
     f3 = f1 + f2
-    return inverse_fourier_transform(f3)
+    yield inverse_fourier_transform(f3)
+
+
+    #filter
+    f1, f2 = f1o, f2o
+    f3 = f1 + f2
+    yield inverse_fourier_transform(remove_freq(f3, 15))
+
+    #gaussian
+    f1, f2 = f1o, f2o
+    g_mask = fourrier_transform(create_gaussian_mask_fourrier(31, 6, size))
+    f1abs = np.abs(f1) * np.abs(g_mask)
+    f1 = f1abs * np.exp(1j*np.angle(f1))
+    f2abs = np.abs(f2) * np.abs(g_mask)
+    f2 = f1abs * np.exp(1j*np.angle(f2))
+    f3 = f1 + f2
+    yield inverse_fourier_transform(f3)
+
+    #filter
+    f1, f2 = f1o, f2o
+    f3 = remove_magnitude(f1, 100, 99.9) + remove_magnitude(f2, 100, 99.9)
+    yield inverse_fourier_transform(f3)
