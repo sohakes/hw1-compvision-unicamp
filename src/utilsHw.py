@@ -3,7 +3,7 @@ import numpy as np
 import math
 import time
 
-DEBUG = True
+DEBUG = False
 NUMBER_FILE = -1
 
 # define number file for convolution
@@ -57,6 +57,63 @@ def create_gaussian_mask2(size, sigma):
     msum = np.sum(mask)
 
     return mask
+
+def create_gaussian_mask_fourrier2(size, sigma, imgsize):
+    assert size % 2 == 1, "mask should have odd size"
+    print("sigma", sigma)
+    sigma = int(2*np.pi*sigma)
+    print("sigma", sigma)
+    def pixel_val(x, y):
+        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
+        #return np.exp(-(2*np.pi,))
+        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
+    
+    halfsize = math.floor(size / 2)
+
+    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)]).astype(float)
+    msum = float(np.sum(mask))
+    mask = mask/msum
+
+    nmask = np.zeros((imgsize, imgsize)).astype(float)
+    middle = int(imgsize/2)
+    middlemask = int(size/2)
+    nmask[middle-middlemask:middle+middlemask+1, middle-middlemask:middle+middlemask+1] = mask
+
+    return nmask
+
+def create_gaussian_mask_fourrier(size, sigma, imgsize):
+    assert size % 2 == 1, "mask should have odd size"
+    def pixel_val(x, y):
+        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
+        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
+    
+    halfsize = math.floor(size / 2)
+
+    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)]).astype(float)
+    msum = float(np.sum(mask))
+    mask = mask/msum
+
+    nmask = np.zeros((imgsize, imgsize)).astype(float)
+    middle = int(imgsize/2)
+    middlemask = int(size/2)
+    nmask[middle-middlemask:middle+middlemask+1, middle-middlemask:middle+middlemask+1] = mask
+
+    return nmask
+
+def create_gaussian_mask3(size, sigma):
+    assert size % 2 == 1, "mask should have odd size"
+    def pixel_val(x, y):
+        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
+        print("val", np.exp(-(x**2 + y**2) * 2 * np.pi * sigma**2))
+        return 2*np.pi*sigma**2 * np.exp(-(x**2 + y**2) * 2 * np.pi * sigma**2)
+        #return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
+
+    halfsize = math.floor(size / 2)
+
+    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)])
+    msum = np.sum(mask)
+
+    return mask / msum
 
 def create_gaussian_mask(size, sigma):
     assert size % 2 == 1, "mask should have odd size"

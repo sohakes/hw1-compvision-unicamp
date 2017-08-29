@@ -71,7 +71,7 @@ def question_laplacianpyramid(img,level):
     # Merge channels and write access
     for i in range(0,level):
         access = merge_color( laplacian_pyramid_b, laplacian_pyramid_g, laplacian_pyramid_r,i) 
-        cv2.imwrite('output/p1-3-'+ str(i) +'.png', access)
+        cv2.imwrite('output/p1-2-3-'+ str(i) +'.png', access)
 
 def question_spacialblending(filename, filename2, hasMask, filename_final, mask_type, maskfile):
     img = cv2.imread('input/' + str(filename))
@@ -133,7 +133,7 @@ def question_fourierspace(img, m):
         ift_b = inverse_fourier_transform(f_b,m[i][0],m[i][1],m[i][2],m[i][3])
         ift_g = inverse_fourier_transform(f_g,m[i][0],m[i][1],m[i][2],m[i][3])
         ift = cv2.merge((ift_b, ift_g, ift_r)) 
-        cv2.imwrite('output/p1-5-'+ str(i+6) +'.png', ift)    
+        cv2.imwrite('output/p1-3-1-'+ str(i+6) +'.png', ift)    
 
 
 def question_frequencyblending(filename, filename2, filename_final, mask_type, maskfile):
@@ -160,7 +160,7 @@ def question_frequencyblending(filename, filename2, filename_final, mask_type, m
 
 def main():
     img = cv2.imread('input/p1-1-1.png')
-    """
+    
   
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
@@ -192,27 +192,27 @@ def main():
     question_laplacianpyramid(img, 5)
 
     # Test : Without mask
-    question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-4-0.png', None, None)
-    question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-4-1.png', None, None)
+    question_spacialblending('p1-1-3.png','p1-1-4.png',False,'p1-2-4-0.png', None, None)
+    question_spacialblending('p1-1-5.png','p1-1-6.png',False,'p1-2-4-1.png', None, None)
     
     # Test: With  mask
-    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-4-2.png', 'circle', None)
-    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-4-3.png', None, 'p1-1-9.png')
+    question_spacialblending('p1-1-7.png','p1-1-8.png',True,'p1-2-4-2.png', 'circle', None)
+    question_spacialblending('p1-1-10.png','p1-1-11.png',True,'p1-2-4-3.png', None, 'p1-1-9.png')
 
     # Test: Each row has:
     #       col 1: percentage_phase_up , 
     #       col 2: percentage_magnitude_up , 
     #       col 3: percentage_phase_down ,
     #       col 4: percentage_magnitude_down
-   """
+
     vals = [-1, 25.0, 50.0, 75.0, 100.0]
     
     m = [[[x if i == j else 100.0 for j in range(4)] for x in vals] for i in range(4)]
     m = sum(m, [])
     question_fourierspace(img,m)
-    
+    """
     # Test: With mask
-    #question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
+    question_frequencyblending('p1-1-4.png','p1-1-3.png','p1-6-0.png', 'circle', None)
     
 
     img = cv2.imread('input/p1-1-1.png', cv2.IMREAD_GRAYSCALE)
@@ -226,22 +226,25 @@ def main():
     img1f = fourrier_transform(img1)
     img2f = fourrier_transform(img2)
     maskf = fourrier_transform(mask)
-    p3 = LaplacianPyramid(img1, 5)
-    p5 = GaussianPyramid(img1, 5)
+    
     p = GaussianPyramidFourrier(img1f, 5)
+    
+    pback = inverse_fourier_transform(p.access(1))
+    p5 = GaussianPyramid(img1, 5)
+    debug("gaussian fourrier", pback)    
+    debug("gaussian orig", p5.access(1).astype('uint8'))
+    p3 = LaplacianPyramid(img1, 5)
+    
     p2 = LaplacianPyramidFourrier(imgf, 5)
     p4 = BlendPyramidMaskFourrier(img1f,img2f,maskf,5)
     p6 = BlendPyramidMask(img1,img2,mask,5)
-    pback = inverse_fourier_transform(p.down(1))
     p2back = inverse_fourier_transform(p2.access(2))
-    debug("pback", pback)
-    debug("p5back", p5.down(1).astype('uint8'))
     debug("p2back", p2back)
     debug("laplac original", inverse_fourier_transform(p2.recover_original()))
     debug("blend fourrier", inverse_fourier_transform(p4.recover_original()/2))
     debug("blend original", p6.recover_original())
     debug("p3back", p3.access(2).astype('uint8'))
-
+    """
 
 if __name__ == '__main__':
    main()
