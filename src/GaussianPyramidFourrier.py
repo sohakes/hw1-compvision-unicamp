@@ -41,5 +41,4 @@ class GaussianPyramidFourrier:
         self.__img_arr = [image]
         for i in range(levels - 1):
           self.__img_arr.append(self.up(i))
-          print("shape level", i, self.__img_arr[-1].shape)
 
