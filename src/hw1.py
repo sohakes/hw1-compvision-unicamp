@@ -185,7 +185,7 @@ def question_frequencyblending_pyramid(filename, filename2, filename_final, mask
 def main():
     img = cv2.imread('input/p1-1-1.png')
     
-    """
+    
     # Test : filter 3 x 3   
     filter_conv = [[0.1,0.1,0.1],[0.1,0.2,0.1],[0.1,0.1,0.1]]
     question_convolution(img, filter_conv)   
@@ -234,10 +234,10 @@ def main():
     m = [[[x if i == j else 100.0 for j in range(4)] for x in vals] for i in range(4)]
     m = sum(m, [])
     question_fourierspace(img,m)
-    """
+    
     # Test: With mask
     question_frequencyblending('p1-1-10.png','p1-1-11.png',1, False, 'p1-1-9.png')
-    #question_frequencyblending_pyramid('p1-1-10.png', 'p1-1-11.png', 'p1-3-2-0', 'p1-1-9.png')
+    question_frequencyblending_pyramid('p1-1-10.png', 'p1-1-11.png', 'p1-3-2-0', 'p1-1-9.png')
 
 
 if __name__ == '__main__':

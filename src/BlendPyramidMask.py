@@ -17,13 +17,11 @@ class BlendPyramidMask(LaplacianPyramid):
     def __init__(self, img1, img2, mask, levels):
         self.image = self.__mix(img1, img2, mask).astype(int)
         debug("mask", mask.astype('uint8'))
-        #debug("blendit!", self.image.astype(np.uint8))
         self.levels = levels
         self.__img1_laplacian = LaplacianPyramid(img1, levels)
         self.__img2_laplacian = LaplacianPyramid(img2, levels)
         self._LaplacianPyramid__img_arr = []
         self.__mask_pyramid = GaussianPyramid(mask.astype(int), levels)
-        #debug("down", self.down(0))
         for i in range(levels):
           self._LaplacianPyramid__img_arr.append(self.__mix(self.__img1_laplacian.access(i),
             self.__img2_laplacian.access(i),

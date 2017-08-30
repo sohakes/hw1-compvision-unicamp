@@ -45,46 +45,9 @@ def debug(name,img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def create_gaussian_mask2(size, sigma):
-    assert size % 2 == 1, "mask should have odd size"
-    def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
-        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
-
-    halfsize = math.floor(size / 2)
-
-    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)])
-    msum = np.sum(mask)
-
-    return mask
-
-def create_gaussian_mask_fourrier2(size, sigma, imgsize):
-    assert size % 2 == 1, "mask should have odd size"
-    print("sigma", sigma)
-    sigma = int(2*np.pi*sigma)
-    print("sigma", sigma)
-    def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
-        #return np.exp(-(2*np.pi,))
-        return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
-    
-    halfsize = math.floor(size / 2)
-
-    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)]).astype(float)
-    msum = float(np.sum(mask))
-    mask = mask/msum
-
-    nmask = np.zeros((imgsize, imgsize)).astype(float)
-    middle = int(imgsize/2)
-    middlemask = int(size/2)
-    nmask[middle-middlemask:middle+middlemask+1, middle-middlemask:middle+middlemask+1] = mask
-
-    return nmask
-
 def create_gaussian_mask_fourrier(size, sigma, imgsize):
     assert size % 2 == 1, "mask should have odd size"
     def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
         return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
     
     halfsize = math.floor(size / 2)
@@ -100,25 +63,10 @@ def create_gaussian_mask_fourrier(size, sigma, imgsize):
 
     return nmask
 
-def create_gaussian_mask3(size, sigma):
-    assert size % 2 == 1, "mask should have odd size"
-    def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
-        print("val", np.exp(-(x**2 + y**2) * 2 * np.pi * sigma**2))
-        return 2*np.pi*sigma**2 * np.exp(-(x**2 + y**2) * 2 * np.pi * sigma**2)
-        #return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
-
-    halfsize = math.floor(size / 2)
-
-    mask = np.array([[pixel_val(i, j) for i in range(-halfsize, halfsize + 1)] for j in range(-halfsize, halfsize + 1)])
-    msum = np.sum(mask)
-
-    return mask / msum
 
 def create_gaussian_mask(size, sigma):
     assert size % 2 == 1, "mask should have odd size"
     def pixel_val(x, y):
-        #return np.exp(-(X.^2 + Y.^2) / (2*sigma*sigma));
         return (1.0/(2 * math.pi * sigma ** 2)) * math.e**(-(x**2 + y**2)/(2*sigma**2))
 
     halfsize = math.floor(size / 2)
@@ -170,7 +118,6 @@ def convolution_opencv(inputimg, mask):
 
 def fourrier_transform(img):
     # Fourier
-    #f = cv2.dft(np.float32(img),flags = cv2.DFT_COMPLEX_OUTPUT)
     f = np.fft.fft2(img)
     # Fourier Shift - Put center zero.
     fs = np.fft.fftshift(f)
@@ -207,7 +154,6 @@ def remove_phase(fourier, percup, percdown):
     def apply_filter(vphase, v):
         if vphase > filtered_valup or vphase < filtered_valdown:
             return np.abs(v) * np.exp(1j*0)
-            #return np.complex(np.abs(v))
         return v
     vecapply = np.vectorize(apply_filter)
     fourier = vecapply(phases, fourier)
@@ -288,5 +234,5 @@ def frequency_blend(img1, img2, mask):
 
     #filter
     f1, f2 = f1o, f2o
-    f3 = remove_magnitude(f1, 100, 99.9) + remove_magnitude(f2, 100, 99.9)
+    f3 = remove_magnitude(f1, 100, 1) + remove_magnitude(f2, 100, 1)
     yield inverse_fourier_transform(f3)
