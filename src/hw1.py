@@ -114,17 +114,17 @@ def question_fourierspace(img, m):
     m_g = magnitude(f_g)
     m_b = magnitude(f_b)
 
-    cv2.imwrite('output/p1-5-0.png', (20*np.log(m_r)).astype('uint8'))
-    cv2.imwrite('output/p1-5-1.png', (20*np.log(m_g)).astype('uint8'))
-    cv2.imwrite('output/p1-5-2.png', (20*np.log(m_b)).astype('uint8'))
+    cv2.imwrite('output/p1-3-1-0.png', (20*np.log(m_r)).astype('uint8'))
+    cv2.imwrite('output/p1-3-1-1.png', (20*np.log(m_g)).astype('uint8'))
+    cv2.imwrite('output/p1-3-1-2.png', (20*np.log(m_b)).astype('uint8'))
     
     p_r = phase(f_r)
     p_g = phase(f_g)
     p_b = phase(f_b)
     
-    cv2.imwrite('output/p1-5-3.png', p_r.astype('uint8'))
-    cv2.imwrite('output/p1-5-4.png', p_g.astype('uint8'))
-    cv2.imwrite('output/p1-5-5.png', p_b.astype('uint8'))
+    cv2.imwrite('output/p1-3-1-3.png', p_r.astype('uint8'))
+    cv2.imwrite('output/p1-3-1-4.png', p_g.astype('uint8'))
+    cv2.imwrite('output/p1-3-1-5.png', p_b.astype('uint8'))
 
     r = len(m)
 
